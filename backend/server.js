@@ -53,26 +53,34 @@ const isOriginAllowed = (origin) => {
   return false;
 };
 
-app.use(cors({
+// Shared CORS options
+const corsOptions = {
   origin: function (origin, callback) {
-    if (isOriginAllowed(origin)) {
-      callback(null, true);
-    } else {
-      console.warn(`🚫 CORS blocked origin: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
+    try {
+      if (isOriginAllowed(origin)) {
+        console.log(`✅ CORS allowed origin: ${origin || 'no origin'}`);
+        callback(null, true);
+      } else {
+        console.warn(`🚫 CORS blocked origin: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      }
+    } catch (error) {
+      console.error('❌ CORS error:', error);
+      callback(error);
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['Content-Range', 'X-Content-Range']
-}));
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  optionsSuccessStatus: 200 // For legacy browser support
+};
+
+// Apply CORS middleware (must be before other middleware)
+app.use(cors(corsOptions));
 
 app.use(bodyParser.json({ limit: '50mb' })); 
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
-
-// Handle OPTIONS preflight requests explicitly
-app.options('*', cors());
 
 // Log incoming requests
 app.use((req, res, next) => {
