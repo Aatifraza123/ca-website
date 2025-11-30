@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import api from '../api/axios';
 import toast from 'react-hot-toast';
 import Card from '../components/common/Card'; // Ensure this component supports classNames/children
 import Loader from '../components/common/Loader';
@@ -16,7 +16,7 @@ const Portfolio = () => {
 
   const fetchPortfolio = async () => {
     try {
-      const { data } = await axios.get('/api/portfolio');
+      const { data } = await api.get('/portfolio');
       setPortfolio(data.portfolio || []);
     } catch (error) {
       console.error('Error fetching portfolio:', error);

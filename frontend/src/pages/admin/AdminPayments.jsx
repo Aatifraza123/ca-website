@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../../api/axios'
 import toast from 'react-hot-toast'
 import { format } from 'date-fns'
 import { FaCreditCard, FaCheckCircle, FaTimesCircle, FaClock, FaUndo, FaSearch, FaFilter } from 'react-icons/fa'
@@ -23,7 +23,7 @@ const AdminPayments = () => {
     try {
       const token = localStorage.getItem('token')
       const config = { headers: { Authorization: `Bearer ${token}` } }
-      const { data } = await axios.get('http://localhost:5000/api/payments', config)
+      const { data } = await api.get('/payments', config)
       setPayments(data.payments || [])
       console.log('Fetched payments:', data.payments?.length || 0)
     } catch (error) {

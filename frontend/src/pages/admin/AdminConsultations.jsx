@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api/axios';
 import toast from 'react-hot-toast';
 import { FaEye, FaTrash, FaPhone, FaEnvelope, FaBriefcase, FaCalendarAlt, FaSearch, FaFilter } from 'react-icons/fa';
 
@@ -18,9 +18,7 @@ const AdminConsultations = () => {
 
   const fetchConsultations = async () => {
     try {
-      const { data } = await axios.get('/api/consultations', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const { data } = await api.get('/consultations');
       
       if (data.success) {
         setConsultations(data.data);

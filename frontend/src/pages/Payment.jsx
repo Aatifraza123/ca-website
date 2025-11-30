@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
-import axios from 'axios'
+import api from '../api/axios'
 import toast from 'react-hot-toast'
 import Input from '../components/common/Input'
 import Button from '../components/common/Button'
@@ -56,9 +56,9 @@ const Payment = () => {
     setServiceLoading(true)
     try {
       console.log('Fetching service with ID:', serviceId)
-      const response = await axios.get(`/api/services/${serviceId}`, {
-        timeout: 10000, // 10 second timeout
-      })
+      const response = await api.get(`/services/${serviceId}`, {
+        timeout: 10000 // 10 second timeout
+      });
       console.log('Service response status:', response.status)
       console.log('Service data:', response.data)
       
@@ -134,7 +134,7 @@ const Payment = () => {
 
       // Create order
       console.log('Creating payment order with:', { amount: Number(amount), serviceId: service?._id || serviceId, customerDetails: formData });
-      const { data } = await axios.post('/api/payments/create-order', {
+      const { data } = await api.post('/payments/create-order', {
         amount: Number(amount),
         serviceId: service?._id || serviceId,
         customerDetails: {
@@ -154,7 +154,7 @@ const Payment = () => {
         image: '/logo.png',
         handler: async (response) => {
           try {
-            const verifyResponse = await axios.post('/api/payments/verify', {
+            const verifyResponse = await api.post('/payments/verify', {
               razorpayOrderId: data.orderId,
               razorpayPaymentId: response.razorpay_payment_id,
               razorpaySignature: response.razorpay_signature,

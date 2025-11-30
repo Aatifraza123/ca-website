@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import axios from 'axios'
+import api from '../../api/axios'
 import toast from 'react-hot-toast'
 import Card from '../../components/common/Card'
 import Button from '../../components/common/Button'
@@ -16,7 +16,7 @@ const AdminReviews = () => {
 
   const fetchReviews = async () => {
     try {
-      const { data } = await axios.get('/api/reviews')
+      const { data } = await api.get('/reviews')
       setReviews(data.reviews)
     } catch (error) {
       toast.error('Failed to fetch reviews')

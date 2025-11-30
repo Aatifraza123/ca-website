@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../../api/axios'
 import toast from 'react-hot-toast'
 import Card from '../../components/common/Card'
 import Input from '../../components/common/Input'
@@ -22,7 +22,7 @@ const AdminSettings = () => {
 
   const fetchSettings = async () => {
     try {
-      const { data } = await axios.get('/api/settings')
+      const { data } = await api.get('/settings')
       setSettings(data.settings)
     } catch (error) {
       toast.error('Failed to fetch settings')
@@ -42,7 +42,7 @@ const AdminSettings = () => {
     e.preventDefault()
     setLoading(true)
     try {
-      await axios.put('/api/settings', settings)
+      await api.put('/settings', settings)
       toast.success('Settings updated successfully')
     } catch (error) {
       toast.error('Failed to update settings')

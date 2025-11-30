@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api/axios';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import { 
@@ -112,9 +112,9 @@ const AdminEmails = () => {
       
       // Fetch consultations, contacts, and newsletter subscribers
       const [consultationsRes, contactsRes, newsletterRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/consultations', config).catch(() => ({ data: { consultations: [] } })),
-        axios.get('http://localhost:5000/api/contact', config).catch(() => ({ data: { contacts: [] } })),
-        axios.get('http://localhost:5000/api/newsletter', config).catch(() => ({ data: { subscribers: [] } }))
+        api.get('/consultations', config).catch(() => ({ data: { consultations: [] } })),
+        api.get('/contact', config).catch(() => ({ data: { contacts: [] } })),
+        api.get('/newsletter', config).catch(() => ({ data: { subscribers: [] } }))
       ]);
       
       const consultations = consultationsRes.data.consultations || [];
@@ -153,14 +153,14 @@ const AdminEmails = () => {
       // Delete from appropriate endpoint based on type
       let endpoint = '';
       if (emailType === 'contact') {
-        endpoint = `http://localhost:5000/api/contact/${id}`;
+        endpoint = `/contact/${id}`;
       } else if (emailType === 'consultation') {
-        endpoint = `http://localhost:5000/api/consultations/${id}`;
+        endpoint = `/consultations/${id}`;
       } else if (emailType === 'newsletter') {
-        endpoint = `http://localhost:5000/api/newsletter/${id}`;
+        endpoint = `/newsletter/${id}`;
       }
       
-      await axios.delete(endpoint, config);
+      await api.delete(endpoint, config);
       toast.success('Email deleted');
       fetchEmails();
     } catch (error) {
@@ -202,7 +202,7 @@ const AdminEmails = () => {
         name: e.name
       }));
 
-      await axios.post('http://localhost:5000/api/contacts/bulk-email', {
+      await api.post('/contacts/bulk-email', {
         recipients,
         subject: bulkEmailData.subject,
         message: bulkEmailData.message

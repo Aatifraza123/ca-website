@@ -1,6 +1,6 @@
 import { useState, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import axios from 'axios';
+import api from '../../api/axios';
 import toast from 'react-hot-toast';
 import { FaTimes, FaUser, FaEnvelope, FaPhone, FaBriefcase, FaComment } from 'react-icons/fa';
 
@@ -23,7 +23,7 @@ const ConsultationModal = ({ isOpen, closeModal }) => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/consultations', formData);
+      const response = await api.post('/consultations', formData);
       
       if (response.data.success) {
         toast.success(response.data.message);

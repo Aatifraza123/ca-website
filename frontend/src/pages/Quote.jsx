@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios';
 import toast from 'react-hot-toast';
 
 const Quote = () => {
@@ -25,11 +25,7 @@ const Quote = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/quotes', formData, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await api.post('/quotes', formData);
       toast.success('Quote request submitted successfully! We will contact you soon.');
       setFormData({
         name: '',

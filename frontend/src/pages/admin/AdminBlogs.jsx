@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import axios from 'axios';
+import api from '../../api/axios';
 import toast from 'react-hot-toast';
 import { FaTrash, FaEdit, FaPlus } from 'react-icons/fa';
 import ReactQuill, { Quill } from 'react-quill';
@@ -49,7 +49,7 @@ const AdminBlogs = () => {
   const fetchBlogs = async () => {
     try {
       // FIX: Use full URL and Config
-      const { data } = await axios.get('http://localhost:5000/api/admin/blogs', getConfig());
+      const { data } = await api.get('/admin/blogs', getConfig());
       setBlogs(Array.isArray(data) ? data : []);
     } catch (error) {
       if (blogs.length === 0) {
@@ -64,7 +64,7 @@ const AdminBlogs = () => {
     if (!window.confirm('Delete this blog?')) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/admin/blogs/${id}`, getConfig());
+      await api.delete(`/admin/blogs/${id}`, getConfig());
       toast.success('Blog deleted');
       fetchBlogs();
     } catch (error) {
@@ -78,13 +78,11 @@ const AdminBlogs = () => {
       if (editingBlog) {
         // Update existing blog
         const blogId = editingBlog._id;
-        const url = `http://localhost:5000/api/blogs/${blogId}`;
-        
-        const response = await axios.put(url, formData, getConfig());
+        const response = await api.put(`/blogs/${blogId}`, formData, getConfig());
         toast.success('Blog updated successfully!');
       } else {
         // Create new blog
-        const response = await axios.post('http://localhost:5000/api/admin/blogs', formData, getConfig());
+        const response = await api.post('/admin/blogs', formData, getConfig());
         toast.success('Blog published successfully!');
       }
       setShowForm(false);

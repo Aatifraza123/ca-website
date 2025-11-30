@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import axios from 'axios';
+import api from '../../api/axios';
 import toast from 'react-hot-toast';
 import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -188,7 +188,7 @@ const AdminBlogsForm = () => {
       const fetchBlog = async () => {
         try {
           // ✅ Using standard endpoint
-          const { data } = await axios.get(`/api/blogs/${id}`);
+          const { data } = await api.get(`/blogs/${id}`);
           reset(data);
           setContent(data.content || '');
         } catch (error) {
@@ -214,11 +214,11 @@ const AdminBlogsForm = () => {
 
       if (isEditMode) {
         // ✅ Using standard endpoint (Middleware handles security)
-        await axios.put(`/api/blogs/${id}`, blogData, getConfig());
+        await api.put(`/blogs/${id}`, blogData, getConfig());
         toast.success('Blog updated!');
       } else {
         // ✅ Using standard endpoint
-        await axios.post('/api/blogs', blogData, getConfig());
+        await api.post('/blogs', blogData, getConfig());
         toast.success('Blog created!');
       }
       navigate('/admin/blogs');

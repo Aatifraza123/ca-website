@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../../api/axios'
 import toast from 'react-hot-toast'
 import Card from '../../components/common/Card'
 import Button from '../../components/common/Button'
@@ -15,7 +15,7 @@ const AdminUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const { data } = await axios.get('/api/users')
+      const { data } = await api.get('/users')
       setUsers(data.users)
     } catch (error) {
       toast.error('Failed to fetch users')

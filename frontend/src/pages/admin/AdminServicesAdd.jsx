@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import axios from 'axios'
+import api from '../../api/axios'
 import toast from 'react-hot-toast'
 import Input from '../../components/common/Input'
 import Button from '../../components/common/Button'
@@ -36,13 +36,13 @@ const AdminServicesForm = () => {
           // 1. पहले Admin Route Try करें
           try {
             console.log("Attempting Admin Route...")
-            const res = await axios.get(`http://localhost:5000/api/admin/services/${id}`, getConfig())
+            const res = await api.get(`/admin/services/${id}`, getConfig())
             responseData = res.data
           } catch (adminError) {
             console.warn("Admin route failed (404), trying Public route...")
             
             // 2. अगर फेल हो, तो Public Route Try करें
-            const res = await axios.get(`http://localhost:5000/api/services/${id}`)
+            const res = await api.get(`/services/${id}`)
             responseData = res.data
           }
 
@@ -90,10 +90,10 @@ const AdminServicesForm = () => {
       }
 
       if (isEditMode) {
-        await axios.put(`http://localhost:5000/api/admin/services/${id}`, formattedData, getConfig())
+        await api.put(`/admin/services/${id}`, formattedData, getConfig())
         toast.success('Service updated successfully')
       } else {
-        await axios.post('http://localhost:5000/api/admin/services', formattedData, getConfig())
+        await api.post('/admin/services', formattedData, getConfig())
         toast.success('Service created successfully')
       }
       

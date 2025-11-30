@@ -4,13 +4,17 @@ Quick steps to deploy your CA Associates website.
 
 ## 🎯 5-Minute Deployment
 
-### Backend (Railway) - 2 minutes
+### Backend (Render - FREE Forever) - 3 minutes
 
-1. Go to https://railway.app → Sign up with GitHub
-2. Click **"New Project"** → **"Deploy from GitHub repo"**
-3. Select your repository
-4. Go to **Settings** → Set **Root Directory** to `backend`
-5. Go to **Variables** tab → Add these:
+1. Go to https://render.com → Sign up with GitHub (FREE)
+2. Click **"New +"** → **"Web Service"**
+3. Connect GitHub repository: `ca-website`
+4. Configure:
+   - **Root Directory**: `backend`
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Plan**: **FREE** ✅
+5. Go to **Environment Variables** → Add these:
 
 ```
 MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/ca-website
@@ -22,7 +26,10 @@ EMAIL_PASS=gmail-app-password
 FRONTEND_URL=https://your-frontend.vercel.app
 ```
 
-6. Copy your Railway URL (e.g., `https://xxx.railway.app`)
+6. Click **"Create Web Service"**
+7. Copy your Render URL (e.g., `https://xxx.onrender.com`)
+
+**Note**: Free tier sleeps after 15 min. First request takes 30-50 seconds.
 
 ---
 
@@ -38,7 +45,7 @@ FRONTEND_URL=https://your-frontend.vercel.app
 4. Go to **Environment Variables** → Add:
 
 ```
-VITE_API_URL=https://xxx.railway.app/api
+VITE_API_URL=https://xxx.onrender.com/api
 ```
 
 5. Click **Deploy** → Copy your Vercel URL
@@ -47,14 +54,15 @@ VITE_API_URL=https://xxx.railway.app/api
 
 ### Update Backend CORS - 1 minute
 
-1. Go back to Railway
-2. Add/Update environment variable:
+1. Go back to Render Dashboard
+2. Select your service → **Environment** tab
+3. Add/Update environment variable:
 
 ```
 FRONTEND_URL=https://your-vercel-url.vercel.app
 ```
 
-3. Railway will auto-redeploy
+4. Click **"Save Changes"** → Auto-redeploy
 
 ---
 
@@ -63,7 +71,7 @@ FRONTEND_URL=https://your-vercel-url.vercel.app
 Your website is now live! 🎉
 
 - Frontend: `https://your-app.vercel.app`
-- Backend: `https://your-app.railway.app`
+- Backend: `https://your-app.onrender.com`
 
 ---
 

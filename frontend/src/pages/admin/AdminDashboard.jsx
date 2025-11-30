@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../api/axios';
 import { 
   FaServicestack, 
   FaBlog, 
@@ -45,12 +45,12 @@ const AdminDashboard = () => {
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
       const [servicesRes, blogsRes, consultRes, contactRes, paymentsRes, portfolioRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/admin/services', config).catch(() => ({ data: { services: [] } })),
-        axios.get('http://localhost:5000/api/admin/blogs', config).catch(() => ({ data: [] })),
-        axios.get('/api/consultations', config).catch(() => ({ data: { data: [] } })),
-        axios.get('/api/contacts', config).catch(() => ({ data: { data: [] } })),
-        axios.get('http://localhost:5000/api/payments', config).catch(() => ({ data: { payments: [] } })),
-        axios.get('http://localhost:5000/api/portfolio', config).catch(() => ({ data: { portfolio: [] } }))
+        api.get('/admin/services', config).catch(() => ({ data: { services: [] } })),
+        api.get('/admin/blogs', config).catch(() => ({ data: [] })),
+        api.get('/consultations', config).catch(() => ({ data: { data: [] } })),
+        api.get('/contacts', config).catch(() => ({ data: { data: [] } })),
+        api.get('/payments', config).catch(() => ({ data: { payments: [] } })),
+        api.get('/portfolio', config).catch(() => ({ data: { portfolio: [] } }))
       ]);
 
       // Handle different response formats from different endpoints

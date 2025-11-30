@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../../api/axios'
 import toast from 'react-hot-toast'
 import { FaTrash, FaEdit, FaPlus, FaTimes } from 'react-icons/fa'
 import Loader from '../../components/common/Loader'
@@ -37,7 +37,7 @@ const AdminPortfolio = () => {
       setLoading(true)
       const token = localStorage.getItem('token')
       const config = { headers: { Authorization: `Bearer ${token}` } }
-      const response = await axios.get('http://localhost:5000/api/portfolio', config)
+      const response = await api.get('/portfolio', config)
       const data = response.data
       setPortfolio(Array.isArray(data) ? data : (data.portfolio || []))
     } catch (error) {
@@ -58,10 +58,10 @@ const AdminPortfolio = () => {
       }
 
       if (editingItem) {
-        await axios.put(`http://localhost:5000/api/portfolio/${editingItem._id}`, submitData, getConfig())
+        await api.put(`/portfolio/${editingItem._id}`, submitData, getConfig())
         toast.success('Portfolio item updated!')
       } else {
-        await axios.post('http://localhost:5000/api/portfolio', submitData, getConfig())
+        await api.post('/portfolio', submitData, getConfig())
         toast.success('Portfolio item created!')
       }
       
@@ -96,7 +96,7 @@ const AdminPortfolio = () => {
     if (!window.confirm('Are you sure you want to delete this portfolio item?')) return
 
     try {
-      await axios.delete(`http://localhost:5000/api/portfolio/${id}`, getConfig())
+      await api.delete(`/portfolio/${id}`, getConfig())
       toast.success('Portfolio item deleted successfully')
       fetchPortfolio()
     } catch (error) {

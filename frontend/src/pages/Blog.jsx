@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import api from '../api/axios';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import Loader from '../components/common/Loader';
@@ -18,7 +18,7 @@ const Blog = () => {
 
   const fetchBlogs = async () => {
     try {
-      const { data } = await axios.get('/api/blogs');
+      const { data } = await api.get('/blogs');
       const blogData = Array.isArray(data) ? data : (data.blogs || []);
       setBlogs(blogData);
       // Set first blog as featured

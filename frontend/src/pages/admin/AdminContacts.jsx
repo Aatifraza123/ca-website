@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api/axios';
 import toast from 'react-hot-toast';
 import { FaEye, FaTrash, FaPhone, FaEnvelope, FaCalendarAlt, FaSearch, FaFilter, FaComment } from 'react-icons/fa';
 
@@ -18,9 +18,7 @@ const AdminContacts = () => {
 
   const fetchContacts = async () => {
     try {
-      const { data } = await axios.get('/api/contacts', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const { data } = await api.get('/contacts');
       
       if (data.success) {
         setContacts(data.data);

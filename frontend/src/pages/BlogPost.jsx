@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import axios from 'axios';
+import api from '../api/axios';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import Loader from '../components/common/Loader';
@@ -42,7 +42,7 @@ const BlogPost = () => {
       console.log('ID format valid:', /^[0-9a-fA-F]{24}$/.test(id));
       
       // First, let's check if blogs are available
-      const blogsResponse = await axios.get('/api/blogs');
+      const blogsResponse = await api.get('/blogs');
       const allBlogs = Array.isArray(blogsResponse.data) ? blogsResponse.data : (blogsResponse.data?.blogs || []);
       console.log('Total blogs available:', allBlogs.length);
       console.log('Available blog IDs:', allBlogs.map(b => b._id?.toString()).slice(0, 5));

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram, FaPaperPlane } from 'react-icons/fa';
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../../api/axios';
 import toast from 'react-hot-toast';
 
 const Footer = () => {
@@ -10,7 +10,7 @@ const Footer = () => {
   const handleSubscribe = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/newsletter/subscribe', { email });
+      await api.post('/newsletter/subscribe', { email });
       toast.success('Subscribed successfully!');
       setEmail('');
     } catch (error) {

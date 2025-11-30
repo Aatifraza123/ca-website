@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api/axios';
 import toast from 'react-hot-toast';
 import { FaTrash, FaEye, FaCheckCircle, FaTimesCircle, FaClock, FaEnvelope, FaPhone, FaBriefcase, FaFileAlt } from 'react-icons/fa';
 
@@ -23,7 +23,7 @@ const AdminQuotes = () => {
 
   const fetchQuotes = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/quotes', getConfig());
+      const response = await api.get('/quotes', getConfig());
       const data = response.data;
       const quotesList = Array.isArray(data) ? data : (data.quotes || []);
       setQuotes(quotesList);
@@ -41,7 +41,7 @@ const AdminQuotes = () => {
     if (!window.confirm('Are you sure you want to delete this quote request?')) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/quotes/${id}`, getConfig());
+      await api.delete(`/quotes/${id}`, getConfig());
       toast.success('Quote request deleted');
       fetchQuotes();
     } catch (error) {
@@ -51,7 +51,7 @@ const AdminQuotes = () => {
 
   const handleUpdateStatus = async (id, newStatus) => {
     try {
-      await axios.patch(`http://localhost:5000/api/quotes/${id}`, { status: newStatus }, getConfig());
+      await api.patch(`/quotes/${id}`, { status: newStatus }, getConfig());
       toast.success(`Quote status updated to ${newStatus}`);
       fetchQuotes();
       setSelectedQuote(prev => prev ? { ...prev, status: newStatus } : null);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import api from '../../api/axios'
 import toast from 'react-hot-toast'
 import { FaTrash, FaPlus, FaEdit } from 'react-icons/fa'
 
@@ -38,7 +38,7 @@ const AdminServices = () => {
   const fetchServices = async () => {
     try {
       setLoading(true)
-      const response = await axios.get('http://localhost:5000/api/admin/services', getConfig())
+      const response = await api.get('/admin/services', getConfig())
       
       // Admin endpoint returns { services: [] }
       if (response.data.services && Array.isArray(response.data.services)) {
@@ -72,11 +72,11 @@ const AdminServices = () => {
       console.log('Submitting service data:', submitData); // Debug log
 
       if (editingService) {
-        const response = await axios.put(`http://localhost:5000/api/services/${editingService._id}`, submitData, getConfig())
+        const response = await api.put(`/services/${editingService._id}`, submitData, getConfig())
         console.log('Service updated response:', response.data); // Debug log
         toast.success('Service updated successfully!')
       } else {
-        await axios.post('http://localhost:5000/api/admin/services', submitData, getConfig())
+        await api.post('/admin/services', submitData, getConfig())
         toast.success('Service created successfully!')
       }
       
@@ -115,7 +115,7 @@ const AdminServices = () => {
     if (!window.confirm('Are you sure you want to delete this service?')) return
 
     try {
-      await axios.delete(`http://localhost:5000/api/admin/services/${id}`, getConfig())
+      await api.delete(`/admin/services/${id}`, getConfig())
       toast.success('Service deleted successfully')
       setServices(prev => prev.filter(service => service._id !== id))
     } catch (error) {
