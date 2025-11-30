@@ -134,9 +134,14 @@ const createContact = async (req, res) => {
 
     // Send emails in next event loop tick (completely non-blocking)
     setImmediate(() => {
-      sendContactEmails(contact).catch(err => {
-        console.error('❌ Email sending failed (non-blocking):', err.message);
-      });
+      console.log('📧 Starting email sending process for contact:', contact._id);
+      sendContactEmails(contact)
+        .then(() => {
+          console.log('✅ Contact emails sent successfully');
+        })
+        .catch(err => {
+          console.error('❌ Email sending failed (non-blocking):', err);
+        });
     });
   } catch (error) {
     console.error('❌ Contact error:', error);
@@ -257,12 +262,17 @@ const deleteContact = async (req, res) => {
 
 // Helper function to send emails (completely async, non-blocking)
 const sendContactEmails = async (contact) => {
+  console.log('📧 sendContactEmails called for:', contact._id);
+  
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.log('⚠️ Email credentials not configured');
+    console.error('⚠️ Email credentials not configured');
+    console.log('EMAIL_USER exists:', !!process.env.EMAIL_USER);
+    console.log('EMAIL_PASS exists:', !!process.env.EMAIL_PASS);
     return;
   }
 
   try {
+    console.log('📧 Creating email transporter...');
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -270,32 +280,82 @@ const sendContactEmails = async (contact) => {
         pass: process.env.EMAIL_PASS
       },
       pool: false,
-      connectionTimeout: 3000,
-      greetingTimeout: 3000,
-      socketTimeout: 3000
+      connectionTimeout: 10000,
+      greetingTimeout: 5000,
+      socketTimeout: 10000
     });
+
+    // Verify transporter
+    console.log('📧 Verifying email transporter...');
+    await transporter.verify();
+    console.log('✅ Email transporter verified successfully');
 
     // Admin notification email
     const adminEmail = {
       from: `"CA Website" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_USER,
       subject: `New Contact Message from ${contact.name}`,
-      html: `<div style="font-family: Arial, sans-serif; padding: 20px;"><h2>New Contact Message</h2><p><strong>Name:</strong> ${contact.name}</p><p><strong>Email:</strong> ${contact.email}</p><p><strong>Phone:</strong> ${contact.phone}</p><p><strong>Message:</strong><br>${contact.message}</p></div>`
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #0B1530; border-bottom: 2px solid #D4AF37; padding-bottom: 10px;">New Contact Message</h2>
+          <div style="margin: 20px 0;">
+            <p><strong>Name:</strong> ${contact.name}</p>
+            <p><strong>Email:</strong> <a href="mailto:${contact.email}">${contact.email}</a></p>
+            <p><strong>Phone:</strong> ${contact.phone}</p>
+            <p><strong>Message:</strong><br>${contact.message.replace(/\n/g, '<br>')}</p>
+          </div>
+          <div style="margin-top: 20px; padding: 10px; background: #f5f5f5; border-left: 3px solid #0B1530;">
+            <small>Ref: ${contact._id}</small><br>
+            <small>Time: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</small>
+          </div>
+        </div>
+      `
     };
 
-    // Customer confirmation email
+    // Customer confirmation email (Auto-reply)
     const customerEmail = {
       from: `"CA Associates" <${process.env.EMAIL_USER}>`,
       to: contact.email,
       subject: 'Thank you for contacting CA Associates',
-      html: `<div style="font-family: Arial, sans-serif; padding: 20px;"><h2>Thank You!</h2><p>Dear ${contact.name},</p><p>Thank you for reaching out. We have received your message and will get back to you within 24 hours.</p></div>`
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #0B1530; border-bottom: 2px solid #D4AF37; padding-bottom: 10px;">Thank You!</h2>
+          <p>Dear ${contact.name},</p>
+          <p>Thank you for reaching out to <strong>CA Associates</strong>. We have received your message and will get back to you within 24 hours.</p>
+          <div style="margin: 20px 0; padding: 15px; background: #f9f9f9; border-left: 3px solid #0B1530;">
+            <p style="margin: 0;"><strong>Your Message:</strong></p>
+            <p style="margin: 10px 0 0 0;">${contact.message.replace(/\n/g, '<br>')}</p>
+          </div>
+          <p><strong>Contact Information:</strong></p>
+          <p>Email: ${process.env.EMAIL_USER}<br>
+          Hours: Mon-Fri, 9am - 6pm IST</p>
+          <p>Best regards,<br><strong>CA Associates Team</strong></p>
+          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+          <small style="color: #666;">CA Associates - Professional Tax & Financial Services</small>
+        </div>
+      `
     };
 
-    // Send emails independently without waiting
-    transporter.sendMail(adminEmail).catch(err => console.error('Admin email failed:', err.message));
-    transporter.sendMail(customerEmail).catch(err => console.error('Customer email failed:', err.message));
+    // Send admin email
+    console.log('📧 Sending admin notification email to:', process.env.EMAIL_USER);
+    const adminResult = await transporter.sendMail(adminEmail);
+    console.log('✅ Admin email sent successfully:', adminResult.messageId);
+
+    // Send customer auto-reply email
+    console.log('📧 Sending customer auto-reply email to:', contact.email);
+    const customerResult = await transporter.sendMail(customerEmail);
+    console.log('✅ Customer auto-reply email sent successfully:', customerResult.messageId);
+
+    console.log('✅ Both contact emails sent successfully');
   } catch (error) {
-    console.error('❌ Email setup error:', error.message);
+    console.error('❌ Email sending error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      command: error.command,
+      response: error.response
+    });
+    throw error; // Re-throw to be caught by caller
   }
 };
 
