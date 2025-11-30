@@ -20,7 +20,7 @@ const newsletterSchema = new mongoose.Schema({
 });
 
 // Index for faster queries
-newsletterSchema.index({ email: 1 });
+// Note: email index is automatically created by unique: true, so no need for manual index
 newsletterSchema.index({ status: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Newsletter', newsletterSchema);
