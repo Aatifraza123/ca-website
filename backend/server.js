@@ -45,11 +45,16 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(bodyParser.json({ limit: '50mb' })); 
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
+
+// Handle OPTIONS preflight requests explicitly
+app.options('*', cors());
 
 // Log incoming requests
 app.use((req, res, next) => {
