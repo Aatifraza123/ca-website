@@ -8,7 +8,7 @@ const createConsultation = async (req, res) => {
   try {
     const { name, email, phone, service, message } = req.body;
 
-    console.log('📋 NEW CONSULTATION REQUEST');
+    console.log('NEW CONSULTATION REQUEST');
     console.log('Data:', { name, email, phone, service });
 
     // Validation
@@ -31,7 +31,7 @@ const createConsultation = async (req, res) => {
       message: message ? message.trim() : ''
     });
 
-    console.log('✅ Consultation saved:', consultation._id);
+    console.log('Consultation saved:', consultation._id);
 
     // Send response immediately (BEFORE any email operations)
     res.status(201).json({
@@ -46,17 +46,17 @@ const createConsultation = async (req, res) => {
 
     // Send emails in next event loop tick (completely non-blocking)
     setImmediate(() => {
-      console.log('📧 Starting email sending process for consultation:', consultation._id);
+      console.log('Starting email sending process for consultation:', consultation._id);
       sendConsultationEmails(consultation)
         .then(() => {
-          console.log('✅ Consultation emails sent successfully');
+          console.log('Consultation emails sent successfully');
         })
         .catch(err => {
-          console.error('❌ Email sending failed (non-blocking):', err);
+          console.error('Email sending failed (non-blocking):', err);
         });
     });
   } catch (error) {
-    console.error('❌ Consultation error:', error);
+    console.error('Consultation error:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to submit consultation request'
@@ -79,7 +79,7 @@ const getConsultations = async (req, res) => {
       data: consultations
     });
   } catch (error) {
-    console.error('❌ Get consultations error:', error);
+    console.error('Get consultations error:', error);
     res.status(500).json({
       success: false,
       message: error.message
@@ -174,17 +174,17 @@ const deleteConsultation = async (req, res) => {
 
 // Helper function to send emails
 const sendConsultationEmails = async (consultation) => {
-  console.log('📧 sendConsultationEmails called for:', consultation._id);
+  console.log('sendConsultationEmails called for:', consultation._id);
   
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.error('⚠️ Email credentials not configured');
+    console.error('Email credentials not configured');
     console.log('EMAIL_USER exists:', !!process.env.EMAIL_USER);
     console.log('EMAIL_PASS exists:', !!process.env.EMAIL_PASS);
     return;
   }
 
   try {
-    console.log('📧 Creating email transporter...');
+    console.log('Creating email transporter...');
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -198,30 +198,74 @@ const sendConsultationEmails = async (consultation) => {
     });
 
     // Verify transporter
-    console.log('📧 Verifying email transporter...');
+    console.log('Verifying email transporter...');
     await transporter.verify();
-    console.log('✅ Email transporter verified successfully');
+    console.log('Email transporter verified successfully');
 
     // Admin notification email
     const adminEmail = {
-      from: `"CA Website" <${process.env.EMAIL_USER}>`,
+      from: `"CA Associates" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_USER,
       subject: `New Consultation: ${consultation.service} - ${consultation.name}`,
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #0B1530; border-bottom: 2px solid #D4AF37; padding-bottom: 10px;">New Consultation Request</h2>
-          <div style="margin: 20px 0;">
-            <p><strong>Name:</strong> ${consultation.name}</p>
-            <p><strong>Email:</strong> <a href="mailto:${consultation.email}">${consultation.email}</a></p>
-            <p><strong>Phone:</strong> ${consultation.phone}</p>
-            <p><strong>Service:</strong> ${consultation.service}</p>
-            ${consultation.message ? `<p><strong>Message:</strong><br>${consultation.message.replace(/\n/g, '<br>')}</p>` : ''}
-          </div>
-          <div style="margin-top: 20px; padding: 10px; background: #f5f5f5; border-left: 3px solid #0B1530;">
-            <small>Ref: ${consultation._id}</small><br>
-            <small>Time: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</small>
-          </div>
-        </div>
+        <!DOCTYPE html>
+        <html>
+        <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 20px;">
+            <tr>
+              <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                  <tr>
+                    <td style="background-color: #0B1530; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+                      <h1 style="color: #D4AF37; margin: 0; font-size: 24px; font-weight: bold;">New Consultation Request</h1>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 30px;">
+                      <div style="margin: 20px 0;">
+                        <table width="100%" cellpadding="8" cellspacing="0">
+                          <tr>
+                            <td style="color: #666; font-size: 14px; padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Name:</strong></td>
+                            <td style="color: #0B1530; font-size: 14px; padding: 8px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">${consultation.name}</td>
+                          </tr>
+                          <tr>
+                            <td style="color: #666; font-size: 14px; padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Email:</strong></td>
+                            <td style="color: #0B1530; font-size: 14px; padding: 8px 0; border-bottom: 1px solid #e5e7eb; text-align: right;"><a href="mailto:${consultation.email}" style="color: #0B1530;">${consultation.email}</a></td>
+                          </tr>
+                          <tr>
+                            <td style="color: #666; font-size: 14px; padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Phone:</strong></td>
+                            <td style="color: #0B1530; font-size: 14px; padding: 8px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">${consultation.phone}</td>
+                          </tr>
+                          <tr>
+                            <td style="color: #666; font-size: 14px; padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Service:</strong></td>
+                            <td style="color: #0B1530; font-size: 14px; padding: 8px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">${consultation.service}</td>
+                          </tr>
+                          ${consultation.message ? `
+                          <tr>
+                            <td style="color: #666; font-size: 14px; padding: 8px 0; vertical-align: top;"><strong>Message:</strong></td>
+                            <td style="color: #333; font-size: 14px; padding: 8px 0; text-align: right; line-height: 1.5;">${consultation.message.replace(/\n/g, '<br>')}</td>
+                          </tr>
+                          ` : ''}
+                        </table>
+                      </div>
+                      <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-left: 3px solid #0B1530; border-radius: 4px;">
+                        <p style="margin: 0; color: #666; font-size: 12px;"><strong>Reference ID:</strong> ${consultation._id}</p>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 12px;"><strong>Time:</strong> ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</p>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="background-color: #0B1530; padding: 20px; text-align: center; border-radius: 0 0 8px 8px;">
+                      <p style="color: #D4AF37; margin: 0; font-size: 14px; font-weight: bold;">CA Associates</p>
+                      <p style="color: #ffffff; margin: 5px 0 0 0; font-size: 12px;">Professional Tax & Financial Services</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
       `
     };
 
@@ -231,39 +275,66 @@ const sendConsultationEmails = async (consultation) => {
       to: consultation.email,
       subject: `Consultation Request Received - ${consultation.service}`,
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #0B1530; border-bottom: 2px solid #D4AF37; padding-bottom: 10px;">Thank You!</h2>
-          <p>Dear ${consultation.name},</p>
-          <p>Thank you for choosing <strong>CA Associates</strong>. We have received your consultation request for <strong>${consultation.service}</strong>.</p>
-          <div style="margin: 20px 0; padding: 15px; background: #f9f9f9; border-left: 3px solid #0B1530;">
-            <p style="margin: 0;"><strong>Your Service Request:</strong></p>
-            <p style="margin: 10px 0 0 0;">${consultation.service}</p>
-            ${consultation.message ? `<p style="margin: 10px 0 0 0;"><strong>Your Message:</strong> ${consultation.message.replace(/\n/g, '<br>')}</p>` : ''}
-          </div>
-          <p>Our team will contact you at <strong>${consultation.phone}</strong> within 24 hours to discuss your requirements.</p>
-          <p><strong>Contact Information:</strong></p>
-          <p>Email: ${process.env.EMAIL_USER}<br>
-          Hours: Mon-Fri, 9am - 6pm IST</p>
-          <p>Best regards,<br><strong>CA Associates Team</strong></p>
-          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-          <small style="color: #666;">CA Associates - Professional Tax & Financial Services</small>
-        </div>
+        <!DOCTYPE html>
+        <html>
+        <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 20px;">
+            <tr>
+              <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                  <tr>
+                    <td style="background-color: #0B1530; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+                      <h1 style="color: #D4AF37; margin: 0; font-size: 24px; font-weight: bold;">Thank You!</h1>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 30px;">
+                      <p style="color: #0B1530; margin-top: 0; font-size: 16px;">Dear ${consultation.name},</p>
+                      <p style="color: #333; font-size: 15px; line-height: 1.6; margin: 0 0 20px 0;">Thank you for choosing <strong>CA Associates</strong>. We have received your consultation request for <strong>${consultation.service}</strong>.</p>
+                      <div style="margin: 20px 0; padding: 20px; background-color: #f8f9fa; border-left: 4px solid #D4AF37; border-radius: 4px;">
+                        <p style="margin: 0 0 10px 0; color: #0B1530; font-size: 14px; font-weight: bold;">Your Service Request:</p>
+                        <p style="margin: 0; color: #333; font-size: 14px;">${consultation.service}</p>
+                        ${consultation.message ? `
+                        <p style="margin: 10px 0 0 0; color: #0B1530; font-size: 14px; font-weight: bold;">Your Message:</p>
+                        <p style="margin: 5px 0 0 0; color: #333; font-size: 14px; line-height: 1.5;">${consultation.message.replace(/\n/g, '<br>')}</p>
+                        ` : ''}
+                      </div>
+                      <p style="color: #333; font-size: 15px; line-height: 1.6; margin: 20px 0;">Our team will contact you at <strong>${consultation.phone}</strong> within 24 hours to discuss your requirements.</p>
+                      <div style="margin: 20px 0; padding: 15px; background-color: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 4px;">
+                        <p style="margin: 0; color: #004085; font-size: 14px;"><strong>Contact Information:</strong></p>
+                        <p style="margin: 5px 0 0 0; color: #004085; font-size: 14px;">Email: ${process.env.EMAIL_USER}<br>Hours: Mon-Fri, 9am - 6pm IST</p>
+                      </div>
+                      <p style="color: #333; font-size: 15px; line-height: 1.6; margin: 20px 0 0 0;">Best regards,<br><strong>CA Associates Team</strong></p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="background-color: #0B1530; padding: 20px; text-align: center; border-radius: 0 0 8px 8px;">
+                      <p style="color: #D4AF37; margin: 0; font-size: 14px; font-weight: bold;">CA Associates</p>
+                      <p style="color: #ffffff; margin: 5px 0 0 0; font-size: 12px;">Professional Tax & Financial Services</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
       `
     };
 
     // Send admin email
-    console.log('📧 Sending admin notification email to:', process.env.EMAIL_USER);
+    console.log('Sending admin notification email to:', process.env.EMAIL_USER);
     const adminResult = await transporter.sendMail(adminEmail);
-    console.log('✅ Admin email sent successfully:', adminResult.messageId);
+    console.log('Admin email sent successfully:', adminResult.messageId);
 
     // Send customer auto-reply email
-    console.log('📧 Sending customer auto-reply email to:', consultation.email);
+    console.log('Sending customer auto-reply email to:', consultation.email);
     const customerResult = await transporter.sendMail(customerEmail);
-    console.log('✅ Customer auto-reply email sent successfully:', customerResult.messageId);
+    console.log('Customer auto-reply email sent successfully:', customerResult.messageId);
 
-    console.log('✅ Both consultation emails sent successfully');
+    console.log('Both consultation emails sent successfully');
   } catch (error) {
-    console.error('❌ Email sending error:', error);
+    console.error('Email sending error:', error);
     console.error('Error details:', {
       message: error.message,
       code: error.code,

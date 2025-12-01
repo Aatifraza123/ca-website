@@ -8,7 +8,7 @@ const sendBulkEmail = async (req, res) => {
   try {
     const { recipients, subject, message } = req.body;
 
-    console.log('📧 BULK EMAIL REQUEST');
+    console.log('BULK EMAIL REQUEST');
     console.log('Recipients count:', recipients?.length);
 
     // Validation
@@ -44,14 +44,14 @@ const sendBulkEmail = async (req, res) => {
     setImmediate(() => {
       sendBulkEmailsInBackground(recipients, subject, message)
         .then(() => {
-          console.log(`✅ Bulk email sent to ${recipients.length} recipients`);
+          console.log(`Bulk email sent to ${recipients.length} recipients`);
         })
         .catch(err => {
-          console.error('❌ Background bulk email error:', err);
+          console.error('Background bulk email error:', err);
         });
     });
   } catch (error) {
-    console.error('❌ Bulk email error:', error);
+    console.error('Bulk email error:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to queue bulk email'
@@ -61,7 +61,7 @@ const sendBulkEmail = async (req, res) => {
 
 // Helper function to send bulk emails in background
 const sendBulkEmailsInBackground = async (recipients, subject, message) => {
-  console.log('📧 Starting background bulk email sending...');
+  console.log('Starting background bulk email sending...');
   
   // Create transporter with connection pooling
   const transporter = nodemailer.createTransport({
@@ -85,7 +85,7 @@ const sendBulkEmailsInBackground = async (recipients, subject, message) => {
   for (let i = 0; i < recipients.length; i += batchSize) {
     const batch = recipients.slice(i, i + batchSize);
     
-    console.log(`📧 Processing batch ${Math.floor(i / batchSize) + 1}: ${batch.length} emails (${i + 1}-${Math.min(i + batchSize, recipients.length)} of ${recipients.length})`);
+    console.log(`Processing batch ${Math.floor(i / batchSize) + 1}: ${batch.length} emails (${i + 1}-${Math.min(i + batchSize, recipients.length)} of ${recipients.length})`);
 
     // Send batch in parallel
     const batchPromises = batch.map(async (recipient) => {
@@ -97,20 +97,34 @@ const sendBulkEmailsInBackground = async (recipients, subject, message) => {
           html: `
             <!DOCTYPE html>
             <html>
-            <body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
-              <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                <div style="background: linear-gradient(135deg, #0B1530 0%, #1a2b5c 100%); padding: 30px; text-align: center;">
-                  <h1 style="color: #D4AF37; margin: 0;">CA Associates</h1>
-                </div>
-                <div style="padding: 30px;">
-                  <p style="color: #0B1530; margin-top: 0;">Dear ${recipient.name || 'Valued Client'},</p>
-                  ${message}
-                </div>
-                <div style="background: #0B1530; padding: 20px; text-align: center;">
-                  <p style="color: #D4AF37; margin: 0; font-weight: bold;">CA Associates</p>
-                  <p style="color: #fff; margin: 5px 0 0 0; font-size: 12px;">Professional Tax & Financial Services</p>
-                </div>
-              </div>
+            <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 20px;">
+                <tr>
+                  <td align="center">
+                    <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                      <tr>
+                        <td style="background-color: #0B1530; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+                          <h1 style="color: #D4AF37; margin: 0; font-size: 24px; font-weight: bold;">CA Associates</h1>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 30px;">
+                          <p style="color: #0B1530; margin-top: 0; font-size: 16px;">Dear ${recipient.name || 'Valued Client'},</p>
+                          <div style="color: #333; font-size: 15px; line-height: 1.6;">
+                            ${message}
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="background-color: #0B1530; padding: 20px; text-align: center; border-radius: 0 0 8px 8px;">
+                          <p style="color: #D4AF37; margin: 0; font-size: 14px; font-weight: bold;">CA Associates</p>
+                          <p style="color: #ffffff; margin: 5px 0 0 0; font-size: 12px;">Professional Tax & Financial Services</p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
             </body>
             </html>
           `
@@ -121,7 +135,7 @@ const sendBulkEmailsInBackground = async (recipients, subject, message) => {
         return { success: true, email: recipient.email };
       } catch (error) {
         failedCount++;
-        console.error(`❌ Failed to send email to ${recipient.email}:`, error.message);
+        console.error(`Failed to send email to ${recipient.email}:`, error.message);
         return { success: false, email: recipient.email, error: error.message };
       }
     });
@@ -135,7 +149,7 @@ const sendBulkEmailsInBackground = async (recipients, subject, message) => {
     }
   }
 
-  console.log(`✅ Bulk email completed: ${sentCount} sent, ${failedCount} failed`);
+  console.log(`Bulk email completed: ${sentCount} sent, ${failedCount} failed`);
 };
 
 // @desc    Submit contact message
@@ -145,7 +159,7 @@ const createContact = async (req, res) => {
   try {
     const { name, email, phone, message } = req.body;
 
-    console.log('📧 NEW CONTACT MESSAGE');
+    console.log('NEW CONTACT MESSAGE');
     console.log('Data:', { name, email, phone });
 
     // Validation
@@ -167,7 +181,7 @@ const createContact = async (req, res) => {
       message: message.trim()
     });
 
-    console.log('✅ Contact saved:', contact._id);
+    console.log('Contact saved:', contact._id);
 
     // Send response immediately (BEFORE any email operations)
     res.status(201).json({
@@ -181,17 +195,17 @@ const createContact = async (req, res) => {
 
     // Send emails in next event loop tick (completely non-blocking)
     setImmediate(() => {
-      console.log('📧 Starting email sending process for contact:', contact._id);
+      console.log('Starting email sending process for contact:', contact._id);
       sendContactEmails(contact)
         .then(() => {
-          console.log('✅ Contact emails sent successfully');
+          console.log('Contact emails sent successfully');
         })
         .catch(err => {
-          console.error('❌ Email sending failed (non-blocking):', err);
+          console.error('Email sending failed (non-blocking):', err);
         });
     });
   } catch (error) {
-    console.error('❌ Contact error:', error);
+    console.error('Contact error:', error);
     res.status(500).json({
       success: false,
       message: error.message || 'Failed to send message'
@@ -309,17 +323,17 @@ const deleteContact = async (req, res) => {
 
 // Helper function to send emails (completely async, non-blocking)
 const sendContactEmails = async (contact) => {
-  console.log('📧 sendContactEmails called for:', contact._id);
+  console.log('sendContactEmails called for:', contact._id);
   
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.error('⚠️ Email credentials not configured');
+    console.error('Email credentials not configured');
     console.log('EMAIL_USER exists:', !!process.env.EMAIL_USER);
     console.log('EMAIL_PASS exists:', !!process.env.EMAIL_PASS);
     return;
   }
 
   try {
-    console.log('📧 Creating email transporter...');
+    console.log('Creating email transporter...');
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -333,29 +347,66 @@ const sendContactEmails = async (contact) => {
     });
 
     // Verify transporter
-    console.log('📧 Verifying email transporter...');
+    console.log('Verifying email transporter...');
     await transporter.verify();
-    console.log('✅ Email transporter verified successfully');
+    console.log('Email transporter verified successfully');
 
     // Admin notification email
     const adminEmail = {
-      from: `"CA Website" <${process.env.EMAIL_USER}>`,
+      from: `"CA Associates" <${process.env.EMAIL_USER}>`,
       to: process.env.EMAIL_USER,
       subject: `New Contact Message from ${contact.name}`,
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #0B1530; border-bottom: 2px solid #D4AF37; padding-bottom: 10px;">New Contact Message</h2>
-          <div style="margin: 20px 0;">
-            <p><strong>Name:</strong> ${contact.name}</p>
-            <p><strong>Email:</strong> <a href="mailto:${contact.email}">${contact.email}</a></p>
-            <p><strong>Phone:</strong> ${contact.phone}</p>
-            <p><strong>Message:</strong><br>${contact.message.replace(/\n/g, '<br>')}</p>
-          </div>
-          <div style="margin-top: 20px; padding: 10px; background: #f5f5f5; border-left: 3px solid #0B1530;">
-            <small>Ref: ${contact._id}</small><br>
-            <small>Time: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</small>
-          </div>
-        </div>
+        <!DOCTYPE html>
+        <html>
+        <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 20px;">
+            <tr>
+              <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                  <tr>
+                    <td style="background-color: #0B1530; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+                      <h1 style="color: #D4AF37; margin: 0; font-size: 24px; font-weight: bold;">New Contact Message</h1>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 30px;">
+                      <table width="100%" cellpadding="8" cellspacing="0">
+                        <tr>
+                          <td style="color: #666; font-size: 14px; padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Name:</strong></td>
+                          <td style="color: #0B1530; font-size: 14px; padding: 8px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">${contact.name}</td>
+                        </tr>
+                        <tr>
+                          <td style="color: #666; font-size: 14px; padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Email:</strong></td>
+                          <td style="color: #0B1530; font-size: 14px; padding: 8px 0; border-bottom: 1px solid #e5e7eb; text-align: right;"><a href="mailto:${contact.email}" style="color: #0B1530;">${contact.email}</a></td>
+                        </tr>
+                        <tr>
+                          <td style="color: #666; font-size: 14px; padding: 8px 0; border-bottom: 1px solid #e5e7eb;"><strong>Phone:</strong></td>
+                          <td style="color: #0B1530; font-size: 14px; padding: 8px 0; border-bottom: 1px solid #e5e7eb; text-align: right;">${contact.phone}</td>
+                        </tr>
+                        <tr>
+                          <td style="color: #666; font-size: 14px; padding: 8px 0; vertical-align: top;"><strong>Message:</strong></td>
+                          <td style="color: #333; font-size: 14px; padding: 8px 0; text-align: right; line-height: 1.5;">${contact.message.replace(/\n/g, '<br>')}</td>
+                        </tr>
+                      </table>
+                      <div style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border-left: 3px solid #0B1530; border-radius: 4px;">
+                        <p style="margin: 0; color: #666; font-size: 12px;"><strong>Reference ID:</strong> ${contact._id}</p>
+                        <p style="margin: 5px 0 0 0; color: #666; font-size: 12px;"><strong>Time:</strong> ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}</p>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="background-color: #0B1530; padding: 20px; text-align: center; border-radius: 0 0 8px 8px;">
+                      <p style="color: #D4AF37; margin: 0; font-size: 14px; font-weight: bold;">CA Associates</p>
+                      <p style="color: #ffffff; margin: 5px 0 0 0; font-size: 12px;">Professional Tax & Financial Services</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
       `
     };
 
@@ -365,37 +416,61 @@ const sendContactEmails = async (contact) => {
       to: contact.email,
       subject: 'Thank you for contacting CA Associates',
       html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #0B1530; border-bottom: 2px solid #D4AF37; padding-bottom: 10px;">Thank You!</h2>
-          <p>Dear ${contact.name},</p>
-          <p>Thank you for reaching out to <strong>CA Associates</strong>. We have received your message and will get back to you within 24 hours.</p>
-          <div style="margin: 20px 0; padding: 15px; background: #f9f9f9; border-left: 3px solid #0B1530;">
-            <p style="margin: 0;"><strong>Your Message:</strong></p>
-            <p style="margin: 10px 0 0 0;">${contact.message.replace(/\n/g, '<br>')}</p>
-          </div>
-          <p><strong>Contact Information:</strong></p>
-          <p>Email: ${process.env.EMAIL_USER}<br>
-          Hours: Mon-Fri, 9am - 6pm IST</p>
-          <p>Best regards,<br><strong>CA Associates Team</strong></p>
-          <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
-          <small style="color: #666;">CA Associates - Professional Tax & Financial Services</small>
-        </div>
+        <!DOCTYPE html>
+        <html>
+        <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 20px;">
+            <tr>
+              <td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                  <tr>
+                    <td style="background-color: #0B1530; padding: 30px; text-align: center; border-radius: 8px 8px 0 0;">
+                      <h1 style="color: #D4AF37; margin: 0; font-size: 24px; font-weight: bold;">Thank You!</h1>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 30px;">
+                      <p style="color: #0B1530; margin-top: 0; font-size: 16px;">Dear ${contact.name},</p>
+                      <p style="color: #333; font-size: 15px; line-height: 1.6; margin: 0 0 20px 0;">Thank you for reaching out to <strong>CA Associates</strong>. We have received your message and will get back to you within 24 hours.</p>
+                      <div style="margin: 20px 0; padding: 20px; background-color: #f8f9fa; border-left: 4px solid #D4AF37; border-radius: 4px;">
+                        <p style="margin: 0; color: #0B1530; font-size: 14px; font-weight: bold;">Your Message:</p>
+                        <p style="margin: 10px 0 0 0; color: #333; font-size: 14px; line-height: 1.5;">${contact.message.replace(/\n/g, '<br>')}</p>
+                      </div>
+                      <div style="margin: 20px 0; padding: 15px; background-color: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 4px;">
+                        <p style="margin: 0; color: #004085; font-size: 14px;"><strong>Contact Information:</strong></p>
+                        <p style="margin: 5px 0 0 0; color: #004085; font-size: 14px;">Email: ${process.env.EMAIL_USER}<br>Hours: Mon-Fri, 9am - 6pm IST</p>
+                      </div>
+                      <p style="color: #333; font-size: 15px; line-height: 1.6; margin: 20px 0 0 0;">Best regards,<br><strong>CA Associates Team</strong></p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="background-color: #0B1530; padding: 20px; text-align: center; border-radius: 0 0 8px 8px;">
+                      <p style="color: #D4AF37; margin: 0; font-size: 14px; font-weight: bold;">CA Associates</p>
+                      <p style="color: #ffffff; margin: 5px 0 0 0; font-size: 12px;">Professional Tax & Financial Services</p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
       `
     };
 
     // Send admin email
-    console.log('📧 Sending admin notification email to:', process.env.EMAIL_USER);
+    console.log('Sending admin notification email to:', process.env.EMAIL_USER);
     const adminResult = await transporter.sendMail(adminEmail);
-    console.log('✅ Admin email sent successfully:', adminResult.messageId);
+    console.log('Admin email sent successfully:', adminResult.messageId);
 
     // Send customer auto-reply email
-    console.log('📧 Sending customer auto-reply email to:', contact.email);
+    console.log('Sending customer auto-reply email to:', contact.email);
     const customerResult = await transporter.sendMail(customerEmail);
-    console.log('✅ Customer auto-reply email sent successfully:', customerResult.messageId);
+    console.log('Customer auto-reply email sent successfully:', customerResult.messageId);
 
-    console.log('✅ Both contact emails sent successfully');
+    console.log('Both contact emails sent successfully');
   } catch (error) {
-    console.error('❌ Email sending error:', error);
+    console.error('Email sending error:', error);
     console.error('Error details:', {
       message: error.message,
       code: error.code,
