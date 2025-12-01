@@ -18,9 +18,10 @@ const Header = () => {
 
   const navLinks = [
     { to: '/', label: 'Home' },
-    { to: '/services', label: 'Services' },
     { to: '/about', label: 'About' },
+    { to: '/services', label: 'Services' },
     { to: '/blog', label: 'Blog' },
+    { to: '/portfolio', label: 'Portfolio' },
     { to: '/contact', label: 'Contact' },
   ];
 
@@ -94,7 +95,7 @@ const Header = () => {
                 : 'bg-[#D4AF37] text-white hover:bg-white hover:text-[#0B1530]'
             }`}
           >
-            Book Consultation
+            Get Quote
           </Link>
         </div>
 
@@ -151,7 +152,7 @@ const Header = () => {
                   }`}
                   onClick={() => setMobileMenu(false)}
                 >
-                  Book Consultation
+                  Get Quote
                 </Link>
               </li>
             </ul>
