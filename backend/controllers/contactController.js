@@ -352,9 +352,10 @@ const sendContactEmails = async (contact) => {
     console.log('Email transporter verified successfully');
 
     // Admin notification email
+    const adminEmailAddress = process.env.EMAIL_USER || 'razaaatif658@gmail.com';
     const adminEmail = {
       from: `"CA Associates" <${process.env.EMAIL_USER}>`,
-      to: process.env.EMAIL_USER,
+      to: adminEmailAddress,
       subject: `New Contact Message from ${contact.name}`,
       html: `
         <!DOCTYPE html>
@@ -459,7 +460,7 @@ const sendContactEmails = async (contact) => {
     };
 
     // Send admin email
-    console.log('Sending admin notification email to:', process.env.EMAIL_USER);
+    console.log('Sending admin notification email to:', adminEmailAddress);
     const adminResult = await transporter.sendMail(adminEmail);
     console.log('Admin email sent successfully:', adminResult.messageId);
 
