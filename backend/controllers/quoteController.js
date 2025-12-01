@@ -71,6 +71,9 @@ const sendQuoteEmails = async (quote) => {
 
   try {
     console.log('Creating email transporter...');
+    console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'EXISTS' : 'MISSING');
+    console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? 'EXISTS' : 'MISSING');
+    
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -78,15 +81,19 @@ const sendQuoteEmails = async (quote) => {
         pass: process.env.EMAIL_PASS
       },
       pool: false,
-      connectionTimeout: 10000,
-      greetingTimeout: 5000,
-      socketTimeout: 10000
+      connectionTimeout: 15000,
+      greetingTimeout: 10000,
+      socketTimeout: 15000
     });
 
-    // Verify transporter
-    console.log('Verifying email transporter...');
-    await transporter.verify();
-    console.log('Email transporter verified successfully');
+    // Try to verify transporter (don't block if it fails)
+    try {
+      console.log('Verifying email transporter...');
+      await transporter.verify();
+      console.log('Email transporter verified successfully');
+    } catch (verifyError) {
+      console.warn('Email transporter verification failed, but continuing:', verifyError.message);
+    }
 
     const adminEmail = process.env.EMAIL_USER || 'razaaatif658@gmail.com';
 
@@ -220,28 +227,83 @@ const sendQuoteEmails = async (quote) => {
     // Send admin email - independent try/catch
     let adminSent = false;
     try {
-      console.log('Sending admin notification email to:', adminEmail);
-      await transporter.sendMail(adminEmailContent);
+      console.log('=== SENDING ADMIN EMAIL ===');
+      console.log('From:', adminEmailContent.from);
+      console.log('To:', adminEmail);
+      console.log('Subject:', adminEmailContent.subject);
+      
+      const adminResult = await Promise.race([
+        transporter.sendMail(adminEmailContent),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Email send timeout after 20 seconds')), 20000)
+        )
+      ]);
+      
       adminSent = true;
-      console.log('Admin email sent successfully!');
+      console.log('✅ Admin email sent successfully!');
+      console.log('Message ID:', adminResult.messageId);
+      console.log('Response:', adminResult.response);
     } catch (adminError) {
-      console.error('Admin email failed:', adminError.message);
+      console.error('❌ ADMIN EMAIL FAILED ===');
+      console.error('Error message:', adminError.message);
+      console.error('Error code:', adminError.code);
+      console.error('Full error:', JSON.stringify(adminError, null, 2));
+      if (adminError.response) {
+        console.error('SMTP Response:', adminError.response);
+      }
+      if (adminError.responseCode) {
+        console.error('Response Code:', adminError.responseCode);
+      }
     }
 
     // Send customer auto-reply email - independent try/catch
     let customerSent = false;
     try {
-      console.log('Sending customer auto-reply email to:', quote.email);
-      await transporter.sendMail(customerEmail);
+      console.log('=== SENDING CUSTOMER EMAIL ===');
+      console.log('From:', customerEmail.from);
+      console.log('To:', quote.email);
+      console.log('Subject:', customerEmail.subject);
+      
+      const customerResult = await Promise.race([
+        transporter.sendMail(customerEmail),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Email send timeout after 20 seconds')), 20000)
+        )
+      ]);
+      
       customerSent = true;
-      console.log('Customer email sent successfully!');
+      console.log('✅ Customer email sent successfully!');
+      console.log('Message ID:', customerResult.messageId);
+      console.log('Response:', customerResult.response);
     } catch (customerError) {
-      console.error('Customer email failed:', customerError.message);
+      console.error('❌ CUSTOMER EMAIL FAILED ===');
+      console.error('Error message:', customerError.message);
+      console.error('Error code:', customerError.code);
+      console.error('Full error:', JSON.stringify(customerError, null, 2));
+      if (customerError.response) {
+        console.error('SMTP Response:', customerError.response);
+      }
+      if (customerError.responseCode) {
+        console.error('Response Code:', customerError.responseCode);
+      }
     }
 
-    console.log('Email sending summary - Admin:', adminSent, 'Customer:', customerSent);
+    // Summary
+    console.log('=== EMAIL SENDING SUMMARY ===');
+    console.log('Admin email sent:', adminSent);
+    console.log('Customer email sent:', customerSent);
+    
+    if (!adminSent && !customerSent) {
+      throw new Error('Both emails failed to send');
+    } else if (!adminSent) {
+      console.warn('Warning: Admin email failed but customer email sent');
+    } else if (!customerSent) {
+      console.warn('Warning: Customer email failed but admin email sent');
+    } else {
+      console.log('✅ Both quote emails sent successfully!');
+    }
   } catch (error) {
-    console.error('Quote email sending error:', error);
+    console.error('❌ Quote email sending error:', error);
     throw error;
   }
 };
