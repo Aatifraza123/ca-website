@@ -345,7 +345,7 @@ const Home = () => {
                 {testimonials.map((t, idx) => (
                   <div
                     key={`first-${idx}`}
-                    className="flex-shrink-0 w-[400px] md:w-[450px] bg-[#F9FAFB] p-8 rounded-2xl border border-gray-100 relative"
+                    className="flex-shrink-0 w-[400px] md:w-[450px] p-8 rounded-2xl border border-gray-200 relative"
                   >
                     <div className="flex gap-1 mb-4 text-[#D4AF37]">
                       {[...Array(t.rating)].map((_, i) => <FaStar key={i} size={16} />)}
@@ -361,7 +361,7 @@ const Home = () => {
                 {testimonials.map((t, idx) => (
                   <div
                     key={`second-${idx}`}
-                    className="flex-shrink-0 w-[400px] md:w-[450px] bg-[#F9FAFB] p-8 rounded-2xl border border-gray-100 relative"
+                    className="flex-shrink-0 w-[400px] md:w-[450px] p-8 rounded-2xl border border-gray-200 relative"
                   >
                     <div className="flex gap-1 mb-4 text-[#D4AF37]">
                       {[...Array(t.rating)].map((_, i) => <FaStar key={i} size={16} />)}
