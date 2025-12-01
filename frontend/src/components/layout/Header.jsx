@@ -10,18 +10,17 @@ const Header = () => {
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      setScrolled(window.scrollY > 10);
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const navLinks = [
-    { to: '/', label: 'Home' },
-    { to: '/about', label: 'About' },
     { to: '/services', label: 'Services' },
+    { to: '/about', label: 'About' },
+    { to: '/', label: 'Why Us' },
     { to: '/blog', label: 'Blog' },
-    { to: '/portfolio', label: 'Portfolio' },
     { to: '/contact', label: 'Contact' },
   ];
 
@@ -29,18 +28,25 @@ const Header = () => {
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrolled
-          ? 'bg-white/70 backdrop-blur-lg shadow-sm py-3'
-          : 'bg-transparent py-4'
+          ? 'bg-white shadow-md py-3'
+          : 'bg-[#0B1530] py-4'
       }`}
     >
       <nav className="container mx-auto px-6 flex justify-between items-center">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 sm:gap-3 hover:opacity-90 transition-opacity group">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#D4AF37] to-[#C9A832] rounded-tr-2xl rounded-bl-2xl flex items-center justify-center text-white font-serif text-xs sm:text-sm font-bold shadow-md sm:shadow-lg group-hover:shadow-xl transition-shadow">
+          <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-tr-2xl rounded-bl-2xl flex items-center justify-center font-serif text-xs sm:text-sm font-bold shadow-md sm:shadow-lg group-hover:shadow-xl transition-all ${
+            scrolled 
+              ? 'bg-gradient-to-br from-[#D4AF37] to-[#C9A832] text-white' 
+              : 'bg-white/10 backdrop-blur-sm text-white border border-white/20'
+          }`}>
             CA
           </div>
-          <span className="text-lg sm:text-2xl md:text-3xl font-serif font-bold text-[#0B1530] tracking-tight">
+          <span className={`text-lg sm:text-2xl md:text-3xl font-serif font-bold tracking-tight transition-colors ${
+            scrolled ? 'text-[#0B1530]' : 'text-white'
+          }`}>
             Associates
+            <span className="text-[#D4AF37]">.</span>
           </span>
         </Link>
 
@@ -52,7 +58,13 @@ const Header = () => {
                 to={link.to}
                 className={({ isActive }) =>
                   `text-base font-sans font-medium transition-all duration-200 relative group ${
-                    isActive ? 'text-[#D4AF37] font-semibold' : 'text-gray-800 hover:text-[#0B1530]'
+                    scrolled
+                      ? isActive 
+                        ? 'text-[#D4AF37] font-semibold' 
+                        : 'text-gray-800 hover:text-[#0B1530]'
+                      : isActive
+                        ? 'text-[#D4AF37] font-semibold'
+                        : 'text-white hover:text-[#D4AF37]'
                   }`
                 }
               >
@@ -76,15 +88,21 @@ const Header = () => {
         <div className="hidden lg:block">
           <Link
             to="/quote"
-            className="bg-[#0B1530] text-white px-6 py-2.5 rounded-full text-base font-medium hover:bg-[#D4AF37] hover:text-[#0B1530] transition-all duration-300 shadow-lg hover:shadow-xl"
+            className={`px-6 py-2.5 rounded-full text-base font-medium transition-all duration-300 shadow-lg hover:shadow-xl ${
+              scrolled
+                ? 'bg-[#0B1530] text-white hover:bg-[#D4AF37] hover:text-[#0B1530]'
+                : 'bg-[#D4AF37] text-white hover:bg-white hover:text-[#0B1530]'
+            }`}
           >
-            Get Quote
+            Book Consultation
           </Link>
         </div>
 
         {/* Mobile Menu Toggle */}
         <button
-          className="lg:hidden text-2xl text-[#0B1530] focus:outline-none"
+          className={`lg:hidden text-2xl focus:outline-none transition-colors ${
+            scrolled ? 'text-[#0B1530]' : 'text-white'
+          }`}
           onClick={() => setMobileMenu(!mobileMenu)}
         >
           {mobileMenu ? <FaTimes /> : <FaBars />}
@@ -98,7 +116,11 @@ const Header = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-white/95 backdrop-blur-xl shadow-2xl overflow-hidden border-t border-gray-100"
+            className={`lg:hidden backdrop-blur-xl shadow-2xl overflow-hidden border-t transition-all ${
+              scrolled 
+                ? 'bg-white/95 border-gray-100' 
+                : 'bg-[#0B1530]/95 border-white/10'
+            }`}
           >
             <ul className="flex flex-col p-6 space-y-4">
               {navLinks.map((link) => (
@@ -107,8 +129,10 @@ const Header = () => {
                     to={link.to}
                     onClick={() => setMobileMenu(false)}
                     className={({ isActive }) =>
-                      `flex items-center justify-between text-lg font-serif font-medium ${
-                        isActive ? 'text-[#D4AF37]' : 'text-[#0B1530]'
+                      `flex items-center justify-between text-lg font-serif font-medium transition-colors ${
+                        scrolled
+                          ? isActive ? 'text-[#D4AF37]' : 'text-[#0B1530]'
+                          : isActive ? 'text-[#D4AF37]' : 'text-white'
                       }`
                     }
                   >
@@ -117,13 +141,17 @@ const Header = () => {
                   </NavLink>
                 </li>
               ))}
-              <li className="pt-4 mt-2 border-t border-gray-100">
+              <li className={`pt-4 mt-2 border-t ${scrolled ? 'border-gray-100' : 'border-white/10'}`}>
                 <Link
                   to="/quote"
-                  className="block bg-[#0B1530] text-white px-6 py-3 rounded-xl text-center text-lg font-semibold hover:bg-[#D4AF37] hover:text-[#0B1530] transition-all shadow-md"
+                  className={`block px-6 py-3 rounded-xl text-center text-lg font-semibold transition-all shadow-md ${
+                    scrolled
+                      ? 'bg-[#0B1530] text-white hover:bg-[#D4AF37] hover:text-[#0B1530]'
+                      : 'bg-[#D4AF37] text-white hover:bg-white hover:text-[#0B1530]'
+                  }`}
                   onClick={() => setMobileMenu(false)}
                 >
-                  Get Quote
+                  Book Consultation
                 </Link>
               </li>
             </ul>
