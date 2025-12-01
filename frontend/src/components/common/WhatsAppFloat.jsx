@@ -18,10 +18,23 @@ const WhatsAppFloat = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Show button after scrolling down 100px
+  // Show button after scrolling down 100px, but hide when footer is visible
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 100) {
+      const footer = document.getElementById('footer');
+      if (!footer) {
+        // If footer not found, show button after 100px scroll
+        setShowButton(window.scrollY > 100);
+        return;
+      }
+
+      const footerTop = footer.offsetTop;
+      const windowBottom = window.scrollY + window.innerHeight;
+      const scrollPosition = window.scrollY;
+
+      // Show button after scrolling down 100px
+      // Hide button when footer is visible (when window bottom reaches footer top)
+      if (scrollPosition > 100 && windowBottom < footerTop - 50) {
         setShowButton(true);
       } else {
         setShowButton(false);
@@ -29,6 +42,8 @@ const WhatsAppFloat = () => {
     };
 
     window.addEventListener('scroll', handleScroll);
+    // Check on mount
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
