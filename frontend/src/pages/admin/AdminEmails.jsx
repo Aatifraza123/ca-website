@@ -177,6 +177,11 @@ const AdminEmails = () => {
 
     try {
       const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Authentication required. Please login again.');
+        return;
+      }
+      
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
       // Delete from appropriate endpoint based on type
@@ -187,13 +192,55 @@ const AdminEmails = () => {
         endpoint = `/consultations/${id}`;
       } else if (emailType === 'newsletter') {
         endpoint = `/newsletter/${id}`;
+      } else {
+        toast.error('Invalid email type');
+        return;
       }
       
+      console.log('Deleting:', { endpoint, id, emailType });
+      
       await api.delete(endpoint, config);
-      toast.success('Email deleted');
+      toast.success('Email deleted successfully');
       fetchEmails();
     } catch (error) {
-      toast.error('Failed to delete email');
+      console.error('Delete error:', error);
+      console.error('Error response:', error.response);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to delete email';
+      toast.error(errorMessage);
+    }
+  };
+
+  const handleStatusUpdate = async (id, emailType, newStatus) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast.error('Authentication required. Please login again.');
+        return;
+      }
+      
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      
+      // Update status from appropriate endpoint based on type
+      let endpoint = '';
+      if (emailType === 'contact') {
+        endpoint = `/contacts/${id}`;
+      } else if (emailType === 'consultation') {
+        endpoint = `/consultations/${id}`;
+      } else {
+        toast.error('Status update not available for this type');
+        return;
+      }
+      
+      console.log('Updating status:', { endpoint, id, emailType, newStatus });
+      
+      await api.patch(endpoint, { status: newStatus }, config);
+      toast.success('Status updated successfully');
+      fetchEmails();
+    } catch (error) {
+      console.error('Status update error:', error);
+      console.error('Error response:', error.response);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to update status';
+      toast.error(errorMessage);
     }
   };
 
@@ -402,13 +449,29 @@ const AdminEmails = () => {
                       )}
                     </td>
                     <td className="p-3">
-                      <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
-                        email.status === 'closed' ? 'bg-green-100 text-green-800' :
-                        email.status === 'contacted' ? 'bg-blue-100 text-blue-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {email.status || 'pending'}
-                      </span>
+                      {(email.emailType === 'contact' || email.emailType === 'consultation') ? (
+                        <select
+                          value={email.status || 'pending'}
+                          onChange={(e) => handleStatusUpdate(email._id, email.emailType, e.target.value)}
+                          className={`text-xs px-2 py-1 rounded-full font-semibold border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#D4AF37] ${
+                            email.status === 'closed' ? 'bg-green-100 text-green-800' :
+                            email.status === 'contacted' ? 'bg-blue-100 text-blue-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
+                          <option value="pending">Pending</option>
+                          <option value="contacted">Contacted</option>
+                          <option value="closed">Closed</option>
+                        </select>
+                      ) : (
+                        <span className={`text-xs px-2 py-1 rounded-full font-semibold ${
+                          email.status === 'closed' ? 'bg-green-100 text-green-800' :
+                          email.status === 'contacted' ? 'bg-blue-100 text-blue-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {email.status || 'active'}
+                        </span>
+                      )}
                     </td>
                     <td className="p-3">
                       <div className="flex items-center justify-center gap-2">
